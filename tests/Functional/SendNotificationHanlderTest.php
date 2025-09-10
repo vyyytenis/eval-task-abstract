@@ -2,29 +2,40 @@
 
 namespace App\Tests\Functional;
 
-//use App\NotificationPublisher\Application\Command\SendNotificationMessage;
-//use App\NotificationPublisher\Application\Handler\SendNotificationHandler;
+use App\NotificationPublisher\Application\Command\SendNotificationMessage;
+use App\NotificationPublisher\Application\Handler\SendNotificationHandler;
+use App\NotificationPublisher\Infrastructure\Persistence\DoctrineNotificationRepository;
+use PHPUnit\Framework\MockObject\MockObject;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
-use Symfony\Component\RateLimiter\RateLimiterFactory;
 
 class SendNotificationHanlderTest extends KernelTestCase
 {
-//    private SendNotificationHandler $sendNotificationHandler;
-//    private RateLimiterFactory $rateLimiterFactory;
-//
-//    public function testSomething(): void
-//    {
-//        $message = new SendNotificationMessage(1, 'channel', 'content', 'receiver');
-//        ($this->sendNotificationHandler)($message);
-//    }
-//
-//    protected function setUp(): void
-//    {
-//        self::ensureKernelShutdown();
-//        $kernel = self::bootKernel();
-//
-//        /** @var SendNotificationHandler $handler */
-//        $handler = $kernel->getContainer()->get('test.service_container')->get(SendNotificationHandler::class);
-//        $this->sendNotificationHandler = $handler;
-//    }
+    private SendNotificationHandler $sendNotificationHandler;
+
+    private DoctrineNotificationRepository&MockObject $repository;
+
+    public function testSomething(): void
+    {
+        $this->expectException(\RuntimeException::class);
+        $this->repository
+            ->expects($this->once())
+            ->method('find')
+            ->willReturn(null)
+        ;
+
+        $message = new SendNotificationMessage(1);
+        $this->sendNotificationHandler->__invoke($message);
+    }
+
+    protected function setUp(): void
+    {
+        self::ensureKernelShutdown();
+        self::bootKernel();
+        $container = static::getContainer();
+
+        $repository = $this->createMock(DoctrineNotificationRepository::class);
+        $this->repository = $repository;
+
+        $this->sendNotificationHandler = $container->get(SendNotificationHandler::class);
+    }
 }

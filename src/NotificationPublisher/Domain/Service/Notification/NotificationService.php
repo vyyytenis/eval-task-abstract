@@ -12,17 +12,20 @@ use Psr\Log\LoggerInterface;
 class NotificationService
 {
     public function __construct(
-        private DoctrineNotificationRepository $repository,
-        private EmailNotificationService $emailNotificationService,
-        private SmsNotificationService $smsNotificationService,
-        private LoggerInterface $logger,
+        public DoctrineNotificationRepository $repository,
+        public EmailNotificationService $emailNotificationService,
+        public SmsNotificationService $smsNotificationService,
+        public LoggerInterface $logger,
     ) {
     }
 
     public function publish(int $id): void
     {
-        /** @var Notification|null $entity */
         $entity = $this->repository->find($id);
+        if ($entity === null) {
+            throw new \RuntimeException("Notification with id {$id} not found");
+        }
+
         $dto = NotificationMessageDto::createFromEntity($entity);
 
         try {
