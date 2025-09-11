@@ -27,10 +27,7 @@ services:
             - '../src/DependencyInjection/'
             - '../src/Entity/'
             - '../src/Kernel.php'
-#    # --- Providers ---
-#    App\NotificationPublisher\Infrastructure\Provider\Email\DummyEmailProvider: ~
-#    App\NotificationPublisher\Infrastructure\Provider\Sms\DummySmsProvider: ~
-#    
+
     App\NotificationPublisher\Infrastructure\Provider\Sms\TwilioSmsProvider:
         arguments:
             $accSid: '%env(TWILIO_ACC_SID)%'
@@ -43,18 +40,3 @@ services:
             $apiSecret: '%env(AWS_SES_API_SECRET)%'
             $fromEmail: '%env(AWS_SES_FROM_EMAIL)%'
             $region: '%env(AWS_SES_REGION)%'
-#
-#    # --- Notification Manager ---
-#    App\NotificationPublisher\Domain\Service\NotificationManager:
-#        arguments:
-#            $providersByChannel:
-#                sms:
-#                    - '@App\NotificationPublisher\Infrastructure\Provider\Sms\TwilioSmsProvider'
-#                    - '@App\NotificationPublisher\Infrastructure\Provider\Sms\DummySmsProvider'
-#
-#                email:
-#                    - '@App\NotificationPublisher\Infrastructure\Provider\Email\AwsSesEmailProvider'
-#                    - '@App\NotificationPublisher\Infrastructure\Provider\Email\DummyEmailProvider'
-#                    - 
-#                push: [] #Example disabled service
-

@@ -12,6 +12,9 @@
 6. Start worker (in step 4 window) `php bin/console messenger:consume async -vv`
 7. Open `https://localhost`
 
+# Notification providers are registered and injected in services.yaml
+
+
 # IMPORTANT Twilio!
 * To send sms other than to +37060790942, I need to **verify new number in Twilio account**.
 * If you send to other than +37060790942 **it will fail and dummy sms provider will be used** as failover. Simulates a random failure

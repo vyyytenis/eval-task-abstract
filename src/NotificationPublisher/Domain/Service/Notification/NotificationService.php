@@ -5,7 +5,6 @@ namespace App\NotificationPublisher\Domain\Service\Notification;
 use App\Constant\Channels;
 use App\Constant\Status;
 use App\Dto\Notification\NotificationMessageDto;
-use App\Entity\Notification;
 use App\NotificationPublisher\Infrastructure\Persistence\DoctrineNotificationRepository;
 use Psr\Log\LoggerInterface;
 

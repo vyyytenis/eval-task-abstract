@@ -33,6 +33,14 @@ abstract class AbstractNotificationService
             ));
         }
 
+//        foreach ($providers as $provider) {
+//            try {
+//                $result = $provider->send($messageDto);
+//            } catch (ProviderException $e) {
+//                continue;
+//            }
+//        }
+
         $result = $this->provider->send($messageDto);
 
         return $result;
