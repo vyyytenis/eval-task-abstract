@@ -4,6 +4,8 @@
 # Put parameters here that don't need to change on each machine where the app is deployed
 # https://symfony.com/doc/current/best_practices.html#use-parameters-for-application-configuration
 parameters:
+    notification.enable_email: '%env(bool:NOTIFICATION_ENABLE_EMAIL)%'
+    notification.enable_sms: '%env(bool:NOTIFICATION_ENABLE_SMS)%'
 
 services:
     # default configuration for services in *this* file
@@ -28,15 +30,44 @@ services:
             - '../src/Entity/'
             - '../src/Kernel.php'
 
-    App\NotificationPublisher\Infrastructure\Provider\Sms\TwilioSmsProvider:
-        arguments:
-            $accSid: '%env(TWILIO_ACC_SID)%'
-            $authToken: '%env(TWILIO_AUTH_TOKEN)%'
-            $fromNumber: '%env(TWILIO_FROM_NUMBER)%'
-
+    # ------------------------------
+    # EMAIL PROVIDERS
+    # ------------------------------
     App\NotificationPublisher\Infrastructure\Provider\Email\AwsSesEmailProvider:
         arguments:
             $apiKey: '%env(AWS_SES_API_KEY)%'
             $apiSecret: '%env(AWS_SES_API_SECRET)%'
             $fromEmail: '%env(AWS_SES_FROM_EMAIL)%'
             $region: '%env(AWS_SES_REGION)%'
+        tags: ['app.email_provider']
+
+    App\NotificationPublisher\Infrastructure\Provider\Email\DummyEmailProvider:
+        tags: ['app.email_provider']
+
+    # ------------------------------
+    # SMS PROVIDERS
+    # ------------------------------
+    App\NotificationPublisher\Infrastructure\Provider\Sms\TwilioSmsProvider:
+        arguments:
+            $accSid: '%env(TWILIO_ACC_SID)%'
+            $authToken: '%env(TWILIO_AUTH_TOKEN)%'
+            $fromNumber: '%env(TWILIO_FROM_NUMBER)%'
+        tags: ['app.sms_provider']
+
+    App\NotificationPublisher\Infrastructure\Provider\Sms\DummySmsProvider:
+        tags: ['app.sms_provider']
+
+    # ------------------------------
+    # CHANNEL SERVICES
+    # ------------------------------
+    App\NotificationPublisher\Domain\Service\Notification\EmailNotificationService:
+        arguments:
+            $providers: !tagged_iterator 'app.email_provider'
+
+    App\NotificationPublisher\Domain\Service\Notification\SmsNotificationService:
+        arguments:
+            $providers: !tagged_iterator 'app.sms_provider'
+    App\NotificationPublisher\Domain\Service\Notification\NotificationService:
+        arguments:
+            $enableEmail: '%notification.enable_email%'
+            $enableSms: '%notification.enable_sms%'

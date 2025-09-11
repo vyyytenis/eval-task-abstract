@@ -1,15 +1,18 @@
 <?php
 namespace App\NotificationPublisher\Domain\Service\Notification;
 
-use App\NotificationPublisher\Infrastructure\Provider\Email\AwsSesEmailProvider;
+use App\NotificationPublisher\Infrastructure\Provider\ProviderInterface;
 use Symfony\Component\RateLimiter\RateLimiterFactory;
 
 class EmailNotificationService extends AbstractNotificationService
 {
+    /**
+     * @param ProviderInterface[] $providers
+     */
     public function __construct(
-        private AwsSesEmailProvider $emailProvider,
+        iterable $providers,
         private RateLimiterFactory $notificationUserLimiter
     ) {
-        parent::__construct($emailProvider, $notificationUserLimiter);
+        parent::__construct($providers, $notificationUserLimiter);
     }
 }

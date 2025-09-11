@@ -1,15 +1,18 @@
 <?php
 namespace App\NotificationPublisher\Domain\Service\Notification;
 
-use App\NotificationPublisher\Infrastructure\Provider\Sms\TwilioSmsProvider;
+use App\NotificationPublisher\Infrastructure\Provider\ProviderInterface;
 use Symfony\Component\RateLimiter\RateLimiterFactory;
 
 class SmsNotificationService extends AbstractNotificationService
 {
+    /**
+     * @param ProviderInterface[] $providers
+     */
     public function __construct(
-        private TwilioSmsProvider $twilioSmsProvider,
+        iterable $providers,
         private RateLimiterFactory $notificationUserLimiter
     ) {
-        parent::__construct($twilioSmsProvider, $notificationUserLimiter);
+        parent::__construct($providers, $notificationUserLimiter);
     }
 }

@@ -52,9 +52,6 @@ class Notification
         $this->updatedAt = new \DateTimeImmutable();
     }
 
-    #[ORM\Column(type: 'datetime_immutable', nullable: true)]
-    private ?\DateTimeImmutable $sentAt = null;
-
     public function getId(): ?int
     {
         return $this->id;
@@ -147,18 +144,6 @@ class Notification
     public function setCreatedAt(\DateTimeImmutable $createdAt): self
     {
         $this->createdAt = $createdAt;
-
-        return $this;
-    }
-
-    public function getSentAt(): ?\DateTimeImmutable
-    {
-        return $this->sentAt;
-    }
-
-    public function setSentAt(?\DateTimeImmutable $sentAt): self
-    {
-        $this->sentAt = $sentAt;
 
         return $this;
     }

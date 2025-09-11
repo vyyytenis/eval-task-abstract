@@ -8,16 +8,22 @@ use Symfony\Component\RateLimiter\RateLimiterFactory;
 
 abstract class AbstractNotificationService
 {
+    /**
+     * @param ProviderInterface[] $providers
+     */
     public function __construct(
-        protected ProviderInterface $provider,
+        protected iterable $providers,
         private RateLimiterFactory $notificationUserLimiter
     ) {
     }
 
     public function send(NotificationMessageDto $messageDto): bool
     {
-        if ($messageDto->getChannel() !== $this->provider->getChannel()) {
-            throw new \RuntimeException('Invalid channel');
+        if (iterator_count($this->providers) === 0) {
+            throw new \RuntimeException(sprintf(
+                'No providers enabled for channel: %s',
+                $messageDto->getChannel()
+            ));
         }
 
         $this->validateRecipient($messageDto->getReceiver());
@@ -33,17 +39,17 @@ abstract class AbstractNotificationService
             ));
         }
 
-//        foreach ($providers as $provider) {
-//            try {
-//                $result = $provider->send($messageDto);
-//            } catch (ProviderException $e) {
-//                continue;
-//            }
-//        }
+        foreach ($this->providers as $provider) {
+            try {
+                if ($provider->send($messageDto)) {
+                    return true;
+                }
+            } catch (ProviderException $e) {
+                continue;
+            }
+        }
 
-        $result = $this->provider->send($messageDto);
-
-        return $result;
+        return false;
     }
 
     protected function validateRecipient(string $receiver): void

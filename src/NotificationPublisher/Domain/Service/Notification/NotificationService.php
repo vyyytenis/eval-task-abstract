@@ -15,6 +15,8 @@ class NotificationService
         public EmailNotificationService $emailNotificationService,
         public SmsNotificationService $smsNotificationService,
         public LoggerInterface $logger,
+        private bool $enableEmail,
+        private bool $enableSms,
     ) {
     }
 
@@ -31,7 +33,10 @@ class NotificationService
             $result = $this->send($dto);
         } catch (\Throwable $e) {
             $this->logger->error('error:',['message' => $e->getMessage()]);
+
             $entity->setStatus(Status::STATUS_FAILED);
+            $entity->setErrorMessage($e->getMessage());
+
             $this->repository->save($entity);
 
             return;
@@ -59,11 +64,19 @@ class NotificationService
 
     private function sendSms($dto): bool
     {
+        if (!$this->enableSms) {
+            throw new \RuntimeException('SMS notifications are disabled via configuration.');
+        }
+
         return $this->smsNotificationService->send($dto);
     }
 
     private function sendEmail($dto): bool
     {
+        if (!$this->enableEmail) {
+            throw new \RuntimeException('Email notifications are disabled via configuration.');
+        }
+
         return $this->emailNotificationService->send($dto);
     }
 }
