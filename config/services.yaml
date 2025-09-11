@@ -6,6 +6,9 @@
 parameters:
     notification.enable_email: '%env(bool:NOTIFICATION_ENABLE_EMAIL)%'
     notification.enable_sms: '%env(bool:NOTIFICATION_ENABLE_SMS)%'
+    notification.retry_delay: '%env(int:NOTIFICATION_RETRY_DELAY)%'
+    notification.max_retries: '%env(int:NOTIFICATION_MAX_RETRIES)%'
+
 
 services:
     # default configuration for services in *this* file
@@ -71,3 +74,5 @@ services:
         arguments:
             $enableEmail: '%notification.enable_email%'
             $enableSms: '%notification.enable_sms%'
+            $retryDelay: '%notification.retry_delay%'
+            $maxRetries: '%notification.max_retries%'

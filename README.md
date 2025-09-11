@@ -7,9 +7,12 @@
 4. Open `docker compose exec php sh`
 5. Run migrations (in step 4 window)
 `php bin/console doctrine:database:create
+ php bin/console doctrine:messenger:setup-transports
  php bin/console make:migration
  php bin/console doctrine:migrations:migrate `
-6. Start worker (in step 4 window) `php bin/console messenger:consume async -vv`
+6. Start workers (in step 4 window)
+`php bin/console messenger:consume async -vv`
+`php bin/console app:notifications:resend`
 7. Open `https://localhost`
 
 # Notification providers are registered and injected in services.yaml
@@ -22,9 +25,7 @@
 * You send email to vyyytenis@gmail.com or kareiva.vytenis@gmail.com, counter in AWS goes up.
 * To send to other, emails have to be verified, otherwise it will fail and go to Dummy sender. Simulates a random failure
 
-vendor/bin/phpunit tests/Functional/SendNotificationHanlderTest.php 
-
-bin/console make:test
+vendor/bin/phpunit tests/Functional/SendNotificationHanlderTest.php
 
 # Whats done
 
@@ -32,7 +33,7 @@ bin/console make:test
     Provide an abstraction between at least two different messaging service providers.
     Use different messaging services/technologies for communication (e.g., SMS, email, push notification, Facebook Messenger, etc.).
 
-    Providers: AWS SES, Twilio
+    Providers used: AWS SES, Twilio
     
     Failover support
     Define several providers for the same type of notification channel.
@@ -40,6 +41,8 @@ bin/console make:test
         Dummy providers for Email and SMS
     
     Delay and resend notifications if all providers fail.
+        Resend worker aded with retry count and time (.env for settings)
+        Worker is done by using 
 
     Configuration-driven:
     Enable/disable different communication channels via configuration.
@@ -69,7 +72,7 @@ bin/console make:test
             {
             "userId": 1,
             "channel": "sms",
-            "content": "phone to fail and go to dummy to retry",
+            "content": "phone to fail and go to dummy to retry, dummy will fail or pass randomly",
             "receiver": "+370123123"
             },
             {
@@ -81,13 +84,13 @@ bin/console make:test
             {
             "userId": 1,
             "channel": "email",
-            "content": "email to fail and go to dummy to retry",
+            "content": "email to fail and go to dummy to retry, dummy will fail or pass randomly",
             "receiver": "somenew@gmail.com"
             },
             {
             "userId": 1,
             "channel": "push",
-            "content": "Example of nojn existing channel",
+            "content": "Example of none existing channel",
             "receiver": "123456"
             }
         ]

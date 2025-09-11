@@ -17,6 +17,8 @@ class NotificationService
         public LoggerInterface $logger,
         private bool $enableEmail,
         private bool $enableSms,
+        private int $retryDelay,
+        private int $maxRetries = 5
     ) {
     }
 
@@ -30,26 +32,30 @@ class NotificationService
         $dto = NotificationMessageDto::createFromEntity($entity);
 
         try {
-            $result = $this->send($dto);
+            $this->send($dto);
         } catch (\Throwable $e) {
             $this->logger->error('error:',['message' => $e->getMessage()]);
 
+            $entity->incrementRetryCount();
             $entity->setStatus(Status::STATUS_FAILED);
             $entity->setErrorMessage($e->getMessage());
 
+            if ($entity->getRetryCount() < $this->maxRetries) {
+                $entity->setRetryAt(
+                    (new \DateTimeImmutable())->add(new \DateInterval("PT{$this->retryDelay}S"))
+                );
+            } else {
+                $entity->setRetryAt(null);
+            }
+
             $this->repository->save($entity);
 
             return;
         }
 
-        if ($result) {
-            $entity->setStatus(Status::STATUS_SENT);
-            $this->repository->save($entity);
-
-            return;
-        }
-
-        $entity->setStatus(Status::STATUS_FAILED);
+        $entity->setStatus(Status::STATUS_SENT);
+        $entity->setRetryAt(null);
+        $entity->setErrorMessage(null);
         $this->repository->save($entity);
     }
 

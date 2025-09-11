@@ -38,6 +38,12 @@ class Notification
     #[ORM\Column(type: 'datetime_immutable')]
     private \DateTimeImmutable $updatedAt;
 
+    #[ORM\Column(type: 'datetime_immutable', nullable: true)]
+    private ?\DateTimeImmutable $retryAt = null;
+
+    #[ORM\Column(type: 'integer')]
+    private int $retryCount = 0;
+
     #[ORM\PrePersist]
     public function onPrePersist(): void
     {
@@ -156,5 +162,30 @@ class Notification
     public function setUpdatedAt(\DateTimeImmutable $updatedAt): void
     {
         $this->updatedAt = $updatedAt;
+    }
+
+    public function getRetryAt(): ?\DateTimeImmutable
+    {
+        return $this->retryAt;
+    }
+
+    public function setRetryAt(?\DateTimeImmutable $retryAt): void
+    {
+        $this->retryAt = $retryAt;
+    }
+
+    public function getRetryCount(): int
+    {
+        return $this->retryCount;
+    }
+
+    public function setRetryCount(int $retryCount): void
+    {
+        $this->retryCount = $retryCount;
+    }
+
+    public function incrementRetryCount(): self
+    {
+        $this->retryCount++; return $this;
     }
 }
